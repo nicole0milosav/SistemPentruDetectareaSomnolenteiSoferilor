@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login & Counter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #16161a;
+      --surface2: #1e1e24;
+      --border: #2a2a35;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --text: #f0f0f5;
+      --muted: #7a7a8c;
+      --success: #4ecca3;
+      --error: #ff6584;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* BG noise + gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(108,99,255,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 90%, rgba(255,101,132,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== PAGES ===== */
+    .page { display: none; position: relative; z-index: 1; }
+    .page.active { display: flex; }
+
+    /* ===== LOGIN PAGE ===== */
+    #login-page {
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(108,99,255,0.08);
+      animation: slideUp 0.6s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2.5rem;
+    }
+
+    <.brand-icon {
+      width: 38px; height: 38px;
+      < background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; <justify-content: center;
+      font-size: 18px;
+    }-->
+
+    .brand-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+    }
+
+    .login-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.03em;
+    }
+
+    .login-subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .field {
+      margin-bottom: 1.2rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .field input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+
+    .field input.error-input {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(255,101,132,0.15);
+    }
+
+    .error-msg {
+      color: var(--error);
+      font-size: 0.82rem;
+      margin-top: 1rem;
+      text-align: center;
+      min-height: 1.2em;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60%  { transform: translateX(-6px); }
+      40%,80%  { transform: translateX(6px); }
+    }
+
+    .btn-login {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, var(--accent), #8b84ff);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.35);
+    }
+
+    .btn-login:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(108,99,255,0.45);
+    }
+
+    .btn-login:active { transform: translateY(0); }
+
+    .hint {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .hint span {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: var(--success);
+      margin: 0 2px;
+    }
+
+    /* ===== COUNTER PAGE ===== */
+    #counter-page {
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(22,22,26,0.8);
+      backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 10;
+    }
+
+    .topbar-brand {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .topbar-brand .dot {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 7px;
+    }
+
+    .user-info {
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .user-email {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .btn-logout {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      padding: 0.4rem 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-logout:hover { border-color: var(--error); color: var(--error); }
+
+    .counter-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      gap: 2.5rem;
+      animation: fadeIn 0.5s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .counter-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .counter-display {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(5rem, 18vw, 9rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: transform 0.12s cubic-bezier(.22,1,.36,1);
+      user-select: none;
+    }
+
+    .counter-display.bump {
+      transform: scale(1.12);
+    }
+
+    .counter-display.negative {
+      background: linear-gradient(135deg, var(--error), #ff9f7f);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .counter-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-counter {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1.6rem;
+      font-weight: 300;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+
+    .btn-counter:hover {
+      background: var(--surface2);
+      border-color: var(--accent);
+      box-shadow: 0 4px 16px rgba(108,99,255,0.25);
+      transform: translateY(-2px);
+    }
+
+    .btn-counter:active { transform: scale(0.93); }
+
+    .btn-counter.inc { border-color: rgba(108,99,255,0.4); color: var(--accent); }
+    .btn-counter.dec { border-color: rgba(255,101,132,0.4); color: var(--error); }
+    .btn-counter.reset { font-size: 0.75rem; font-family: 'Syne', sans-serif; font-weight: 600; letter-spacing: 0.05em; color: var(--muted); }
+
+    .counter-hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* step control */
+    .step-control {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.6rem 1.2rem;
+    }
+
+    .step-control label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+
+    .step-control input[type=range] {
+      -webkit-appearance: none;
+      width: 120px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .step-control input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    .step-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent);
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .esp-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.7rem 1.2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .esp-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .esp-bar input[type=text] {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.35rem 0.7rem;
+      color: var(--text);
+      font-family: monospace;
+      font-size: 0.88rem;
+      width: 148px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .esp-bar input[type=text]:focus { border-color: var(--accent); }
+
+    .btn-ping {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      padding: 0.35rem 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-ping:hover { border-color: var(--accent); color: var(--accent); }
+
+    .esp-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .esp-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .esp-dot.online  { background: var(--success); box-shadow: 0 0 7px var(--success); }
+    .esp-dot.offline { background: var(--error);   box-shadow: 0 0 7px var(--error); }
+    .esp-dot.sending { background: var(--accent);  animation: blink 0.35s ease; }
+
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.2; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGINĂ LOGIN -->
+  <div id="login-page" class="page active">
+    <div class="login-card">
+      <div class="brand">
+        <div class="brand-icon"></div>
+        <div class="brand-name">Demo Somnolenta Soferi</div>
+      </div>
+      <div class="login-title">Bun venit</div>
+      <div class="login-subtitle">Autentifică-te pentru a continua</div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="inp-email" placeholder="email@gmail.com" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label>Parolă</label>
+        <input type="password" id="inp-pass" placeholder="••••••"/>
+      </div>
+
+      <div class="error-msg" id="err-msg"></div>
+
+      <button class="btn-login" onclick="doLogin()">Intră în cont</button>
+
+      <div class="hint">
+       <!--  Cont demo: <span>username@gmail.com</span> / <span>12356</span> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGINĂ COUNTER -->
+  <div id="counter-page" class="page">
+    <div class="topbar">
+      <div class="topbar-brand">
+       <!--  <div class="dot"></div> -->
+        Demo Somnolenta Soferi
+      </div>
+      <div class="user-info">
+        <span class="user-email" id="logged-email"></span>
+        <button class="btn-logout" onclick="doLogout()">Deconectare</button>
+      </div>
+    </div>
+
+    <div class="counter-main">
+      <div class="counter-label">Contor</div>
+      <div class="counter-display" id="counter-num">0</div>
+
+      <button class="btn-counter reset" onclick="resetCount()" title="Reset">RST</button>
+
+      <div class="counter-hint">Contorul crește automat la fiecare impuls primit de la ESP</div>
+
+      <div class="esp-bar">
+        <span class="esp-label">IP ESP32</span>
+        <input type="text" id="esp-ip" value="192.168.1.100" placeholder="192.168.x.x"/>
+        <button class="btn-ping" onclick="pingESP()">Test</button>
+        <div class="esp-status">
+          <span class="esp-dot" id="esp-dot"></span>
+          <span id="esp-status-text">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const VALID_EMAIL = 'username@gmail.com';
+    const VALID_PASS  = '123';
+    let count = 0;
+    let step  = 1;
+
+    function doLogin() {
+      const email = document.getElementById('inp-email').value.trim();
+      const pass  = document.getElementById('inp-pass').value;
+      const err   = document.getElementById('err-msg');
+      const ei    = document.getElementById('inp-email');
+      const pi    = document.getElementById('inp-pass');
+
+      ei.classList.remove('error-input');
+      pi.classList.remove('error-input');
+      err.textContent = '';
+
+      if (!email || !pass) {
+        err.textContent = 'Completează toate câmpurile.';
+        if (!email) ei.classList.add('error-input');
+        if (!pass)  pi.classList.add('error-input');
+        return;
+      }
+
+      if (email !== VALID_EMAIL || pass !== VALID_PASS) {
+        err.textContent = 'Email sau parolă incorectă.';
+        ei.classList.add('error-input');
+        pi.classList.add('error-input');
+        return;
+      }
+
+      document.getElementById('logged-email').textContent = email;
+      switchPage('counter-page');
+    }
+
+    function doLogout() {
+      document.getElementById('inp-email').value = '';
+      document.getElementById('inp-pass').value  = '';
+      document.getElementById('err-msg').textContent = '';
+      document.getElementById('inp-email').classList.remove('error-input');
+      document.getElementById('inp-pass').classList.remove('error-input');
+      count = 0;
+      renderCount();
+      switchPage('login-page');
+    }
+
+    function switchPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+   
+    let lastCount  = 0;   //retine ultima valoare primita de la esp (pt a face dif)
+    let pollTimer  = null;  //retine id inervalul de polling
+
+    function getESPip() {  //citește IP-ul introdus de utilizator în câmpul text esp-ip și elimină spațiile goale de la capete.
+      return document.getElementById('esp-ip').value.trim();
+    }
+
+    function setStatus(state, text) {  // actualizează indicatorul vizual de conexiune: schimbă clasa punctului colorat
+      const dot  = document.getElementById('esp-dot'); //Selectează elementul HTML al punctului colorat (indicatorul de status).
+      const span = document.getElementById('esp-status-text'); //selec elem HTML al textului status
+      dot.className  = 'esp-dot ' + state; //selec clasa punctului si css ul schimba cul in functie de clasa
+      span.textContent = text; //scrie textul în elementul de status
+    }
+
+    async function pingESP() {
+      setStatus('sending', 'Se verifică...'); //indicatorul galben in astep
+      try {
+        const r = await fetch(`http://${getESPip()}/ping`, { signal: AbortSignal.timeout(3000) }); //trm un req http la ip , daca nu rasp in 3 s se anuleaza
+        if (r.ok) { setStatus('online', 'Conectat'); startPolling(); }//daca esp a rasp cu succes cod 200, seteaza conectat si porneste polling
+        else        setStatus('offline', 'Eroare ' + r.status); //daca nu, cod eroare
+      } catch {
+        setStatus('offline', 'Offline'); //daca req a esuat complet timout esp offline retea indisponibila
+      }
+    }
+    function startPolling() {
+      if (pollTimer) return;
+      pollTimer = setInterval(pollESP, 500);
+    }
+
+    function stopPolling() {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+
+    async function pollESP() {
+      try {
+        const r = await fetch(`http://${getESPip()}/count`, { signal: AbortSignal.timeout(2000) });
+        if (!r.ok) { setStatus('offline', 'Eroare ' + r.status); return; }
+
+        const val = parseInt(await r.text()); //raspunsul il converteste in nr intreg
+        if (isNaN(val)) return; //raspunsul nu este valid iese din functie
+
+        if (val > lastCount) { //verifica daca esp a nr mai multe evenimente fata de ultima citire
+          const diff = val - lastCount; 
+          count += diff; //calc cate even noi sunt
+          renderCount();
+          setStatus('online', 'Impuls primit'); //actualizeaza msj si marcheaza ca s-a primit impuls nou
+        } else {
+          setStatus('online', 'Conectat'); //daca nu sunt evenimente noi afiseaza doar conectat
+        }
+        lastCount = val; //set valoare curenta pt urm comp
+
+      } catch {
+        setStatus('offline', 'ESP offline'); // daca request ul esueaza af esp offline
+      }
+    }
+
+    function resetCount() {
+      count = 0; //reseteaza contorul local
+      lastCount = 0; //reseteaza ultima valoare citita la 0, ai la urm citire sa nu se calc o dif gresita
+      renderCount(); //actualizeaza afisajul cu noua valoare
+    }
+
+    function renderCount() {
+      const el = document.getElementById('counter-num');
+      el.textContent = count;
+      el.classList.toggle('negative', count < 0);
+      el.classList.remove('bump');
+      void el.offsetWidth;
+      el.classList.add('bump');
+      setTimeout(() => el.classList.remove('bump'), 150);
+    }
+
+    function updateStep(val) {
+      step = parseInt(val);
+      document.getElementById('step-val').textContent = val;
+    }
+
+    // Opreste polling la delogare
+    function doLogout() {
+      stopPolling();
+      document.getElementById('inp-email').value = '';
+      document.getElementById('inp-pass').value  = '';
+      document.getElementById('err-msg').textContent = '';
+      document.getElementById('inp-email').classList.remove('error-input');
+      document.getElementById('inp-pass').classList.remove('error-input');
+      count = 0; lastCount = 0;
+      renderCount();
+      switchPage('login-page');
+    }
+
+    document.getElementById('inp-pass').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  </script>
+</body>
+</html>
